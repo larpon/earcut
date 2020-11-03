@@ -1,6 +1,7 @@
 # earcut
 
-A hand-ported V version of [mapbox/earcut](https://github.com/mapbox/earcut)
+A hand-ported V version of [mapbox/earcut](https://github.com/mapbox/earcut).
+
 The implementation is currently based on commit [ee77dc](https://github.com/mapbox/earcut/tree/ee77dcec3d0f48b38de3976d4cb8819b4bd21aec)
 
 ## Example
