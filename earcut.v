@@ -73,7 +73,16 @@ fn linked_list(data []f32, start int, end int, dim int, clockwise bool) &Node {
 
 [inline]
 // filter_points eliminate colinear or duplicate points
-fn filter_points(mut start &Node, mut end &Node) &Node {
+fn filter_points(mut start_ &Node, mut end_ &Node) &Node {
+
+	// TODO BUG WORKAROUND
+	mut start := &Node(0)
+	start = start_
+
+	// TODO BUG WORKAROUND
+	mut end := &Node(0)
+	end = end_
+
 	if isnil(start) { return start }
 	if isnil(end) { end = start }
 
@@ -98,12 +107,18 @@ fn filter_points(mut start &Node, mut end &Node) &Node {
 
 [inline] [direct_array_access]
 // earcut_linked main ear slicing loop which triangulates a polygon (given as a linked list)
-fn earcut_linked(mut ear &Node, mut triangles []i64, dim int, min_x f32, min_y f32, inv_size f32, pass int) {
+fn earcut_linked(mut ear_ &Node, mut triangles []i64, dim int, min_x f32, min_y f32, inv_size f32, pass int) {
+
+	// TODO BUG WORKAROUND
+	mut ear := &Node(0)
+	ear = ear_
+
 	if isnil(ear) { return }
 	// interlink polygon nodes in z-order
     if pass == 0 && inv_size > 0.0 {
 		index_curve(ear, min_x, min_y, inv_size)
 	}
+
 	mut stop := ear
 	mut prev := &Node(0)
 	mut next := &Node(0)
@@ -209,12 +224,23 @@ fn is_ear_hashed(ear &Node, min_x f32, min_y f32, inv_size f32) bool {
 
 [inline] [direct_array_access]
 // cure_local_intersections go through all polygon nodes and cure small local self-intersections
-fn cure_local_intersections(mut start &Node, mut triangles []i64, dim int) &Node {
+fn cure_local_intersections(mut start_ &Node, mut triangles []i64, dim int) &Node {
+
+	// TODO BUG WORKAROUND
+	mut start := &Node(0)
+	start = start_
+
+
 	mut p := start
 	mut nil := &Node(0)
 	for {
 		a := p.prev
-		b := p.next.next
+
+		// TODO BUG WORKAROUND
+		// b := p.next.next
+		mut p_next := p.next
+		b := p_next
+
 		if !equals(a, b) && intersects(a, p, p.next, b) && locally_inside(a, b) && locally_inside(b, a) {
 			triangles << a.i / dim
 			triangles << p.i / dim
@@ -257,9 +283,19 @@ fn split_earcut(start &Node, mut triangles []i64, dim int, min_x f32, min_y f32,
 	}
 }
 
+// TODO
+fn sort_queue_by_x(a &Node, b &Node) int {
+	return int(a.x - b.x)
+}
+
 [inline] [direct_array_access]
 // eliminate_holes link every hole into the outer loop, producing a single-ring polygon without holes
-fn eliminate_holes(data []f32, hole_indices []int, mut outer_node &Node, dim int) &Node {
+fn eliminate_holes(data []f32, hole_indices []int, mut outer_node_ &Node, dim int) &Node {
+
+	// TODO BUG WORKAROUND
+	mut outer_node := &Node(0)
+	outer_node = outer_node_
+
 	mut queue := []&Node{}
 	len := hole_indices.len
 	mut start := 0
@@ -274,8 +310,11 @@ fn eliminate_holes(data []f32, hole_indices []int, mut outer_node &Node, dim int
 		}
 		queue << get_leftmost(list)
 	}
+
 	//queue.sort(a.x - b.x) // TODO C error: "error: ';' expected (got "*")"
 	//queue.sort(fn(a &Node, b &Node) int { return a.x - b.x })
+	queue.sort_with_compare(sort_queue_by_x)
+
 	// process holes from left to right
 	list = &Node(0)
 	for i := 0; i < queue.len; i++ {
@@ -286,13 +325,14 @@ fn eliminate_holes(data []f32, hole_indices []int, mut outer_node &Node, dim int
 	return outer_node
 }
 
-/*function compareX(a, b) {
-    return a.x - b.x;
-}*/
-
 [inline]
 // eliminate_hole find a bridge between vertices that connects hole with an outer ring and and link it
-fn eliminate_hole(mut hole &Node, mut outer_node &Node) {
+fn eliminate_hole(mut hole &Node, mut outer_node_ &Node) {
+
+	// TODO BUG WORKAROUND
+	mut outer_node := &Node(0)
+	outer_node = outer_node_
+
 	outer_node = find_hole_bridge(hole, outer_node)
 	if !isnil(outer_node) {
 		mut b := split_polygon(mut outer_node, mut hole)
@@ -385,7 +425,13 @@ fn index_curve(start &Node, min_x f32, min_y f32, inv_size f32) {
 [inline]
 // sort_linked Simon Tatham's linked list merge sort algorithm
 // http://www.chiark.greenend.org.uk/~sgtatham/algorithms/listsort.html
-fn sort_linked(mut list &Node) &Node {
+fn sort_linked(mut list_ &Node) &Node {
+
+	// TODO BUG WORKAROUND
+	mut list := &Node(0)
+	list = list_
+
+
 	mut i := 0
 	mut p := &Node(0)
 	mut q := &Node(0)
