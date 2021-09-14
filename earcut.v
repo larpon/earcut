@@ -319,7 +319,7 @@ fn eliminate_holes(data []f32, hole_indices []int, mut outer_node_ &Node, dim in
 	list = &Node(0)
 	for i := 0; i < queue.len; i++ {
 		list = queue[i]
-		eliminate_hole(mut list, mut outer_node)
+		outer_node = eliminate_hole(mut list, mut outer_node)
 		outer_node = filter_points(mut outer_node, mut outer_node.next)
 	}
 	return outer_node
@@ -327,19 +327,32 @@ fn eliminate_holes(data []f32, hole_indices []int, mut outer_node_ &Node, dim in
 
 [inline]
 // eliminate_hole find a bridge between vertices that connects hole with an outer ring and and link it
-fn eliminate_hole(mut hole &Node, mut outer_node_ &Node) {
+fn eliminate_hole(mut hole_ &Node, mut outer_node_ &Node) &Node {
 
 	// TODO BUG WORKAROUND
 	mut outer_node := &Node(0)
 	outer_node = outer_node_
 
-	outer_node = find_hole_bridge(hole, outer_node)
-	if !isnil(outer_node) {
-		mut b := split_polygon(mut outer_node, mut hole)
-		// filter collinear points around the cuts
-		filter_points(mut outer_node, mut outer_node.next)
-		filter_points(mut b, mut b.next)
+	// TODO BUG WORKAROUND
+	mut hole := &Node(0)
+	hole = hole_
+
+	mut bridge := find_hole_bridge(hole, outer_node)
+	if isnil(bridge) {
+		return outer_node
 	}
+
+	mut bridge_reverse := split_polygon(mut bridge, mut hole)
+
+ 	// filter collinear points around the cuts
+	filtered_bridge := filter_points(mut bridge, mut bridge.next)
+	filter_points(mut bridge_reverse, mut bridge_reverse.next)
+
+	// Check if input node was removed by the filtering
+	if outer_node == bridge {
+		return filtered_bridge
+	}
+	return outer_node
 }
 
 [inline]
