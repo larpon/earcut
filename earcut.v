@@ -73,7 +73,7 @@ fn linked_list(data []f32, start int, end int, dim int, clockwise bool) &Node {
 
 [inline]
 // filter_points eliminate colinear or duplicate points
-fn filter_points(mut start Node, mut end Node) &Node {
+fn filter_points(mut start &Node, mut end &Node) &Node {
 	if isnil(start) { return start }
 	if isnil(end) { end = start }
 
@@ -81,7 +81,7 @@ fn filter_points(mut start Node, mut end Node) &Node {
 	mut again := false
 	for {
 		again = false
-		if !p.steiner && ((equals(p, p.next) || area(p.prev, p, p.next) == 0)) {
+		if !p.steiner && (equals(p, p.next) || area(p.prev, p, p.next) == 0) {
 			remove_node(mut p)
 			p = p.prev
 			end = p.prev
@@ -98,7 +98,7 @@ fn filter_points(mut start Node, mut end Node) &Node {
 
 [inline] [direct_array_access]
 // earcut_linked main ear slicing loop which triangulates a polygon (given as a linked list)
-fn earcut_linked(mut ear Node, mut triangles []i64, dim int, min_x f32, min_y f32, inv_size f32, pass int) {
+fn earcut_linked(mut ear &Node, mut triangles []i64, dim int, min_x f32, min_y f32, inv_size f32, pass int) {
 	if isnil(ear) { return }
 	// interlink polygon nodes in z-order
     if pass == 0 && inv_size > 0.0 {
@@ -209,7 +209,7 @@ fn is_ear_hashed(ear &Node, min_x f32, min_y f32, inv_size f32) bool {
 
 [inline] [direct_array_access]
 // cure_local_intersections go through all polygon nodes and cure small local self-intersections
-fn cure_local_intersections(mut start Node, mut triangles []i64, dim int) &Node {
+fn cure_local_intersections(mut start &Node, mut triangles []i64, dim int) &Node {
 	mut p := start
 	mut nil := &Node(0)
 	for {
@@ -259,7 +259,7 @@ fn split_earcut(start &Node, mut triangles []i64, dim int, min_x f32, min_y f32,
 
 [inline] [direct_array_access]
 // eliminate_holes link every hole into the outer loop, producing a single-ring polygon without holes
-fn eliminate_holes(data []f32, hole_indices []int, mut outer_node Node, dim int) &Node {
+fn eliminate_holes(data []f32, hole_indices []int, mut outer_node &Node, dim int) &Node {
 	mut queue := []&Node{}
 	len := hole_indices.len
 	mut start := 0
@@ -274,10 +274,10 @@ fn eliminate_holes(data []f32, hole_indices []int, mut outer_node Node, dim int)
 		}
 		queue << get_leftmost(list)
 	}
-	//queue.sort(a.x - b.x) // TODO
+	//queue.sort(a.x - b.x) // TODO C error: "error: ';' expected (got "*")"
 	//queue.sort(fn(a &Node, b &Node) int { return a.x - b.x })
 	// process holes from left to right
-	list = 0
+	list = &Node(0)
 	for i := 0; i < queue.len; i++ {
 		list = queue[i]
 		eliminate_hole(mut list, mut outer_node)
@@ -292,7 +292,7 @@ fn eliminate_holes(data []f32, hole_indices []int, mut outer_node Node, dim int)
 
 [inline]
 // eliminate_hole find a bridge between vertices that connects hole with an outer ring and and link it
-fn eliminate_hole(mut hole Node, mut outer_node Node) {
+fn eliminate_hole(mut hole &Node, mut outer_node &Node) {
 	outer_node = find_hole_bridge(hole, outer_node)
 	if !isnil(outer_node) {
 		mut b := split_polygon(mut outer_node, mut hole)
@@ -377,15 +377,15 @@ fn index_curve(start &Node, min_x f32, min_y f32, inv_size f32) {
 		p = p.next
 		if p == start { break }
 	}
-	p.prev_z.next_z = 0
-	p.prev_z = 0
+	p.prev_z.next_z = &Node(0)
+	p.prev_z = &Node(0)
 	sort_linked(mut p)
 }
 
 [inline]
 // sort_linked Simon Tatham's linked list merge sort algorithm
 // http://www.chiark.greenend.org.uk/~sgtatham/algorithms/listsort.html
-fn sort_linked(mut list Node) &Node {
+fn sort_linked(mut list &Node) &Node {
 	mut i := 0
 	mut p := &Node(0)
 	mut q := &Node(0)
@@ -397,8 +397,8 @@ fn sort_linked(mut list Node) &Node {
 	mut in_size := 1
 	for {
 		p = list
-		list = 0//&Node(0)
-		tail = 0//&Node(0)
+		list = &Node(0)
+		tail = &Node(0)
 		num_merges = 0
 		for !isnil(p) {
 			num_merges++
@@ -433,7 +433,7 @@ fn sort_linked(mut list Node) &Node {
 			}
 			p = q
 		}
-		tail.next_z = 0 //&Node(0)
+		tail.next_z = &Node(0)
 		in_size *= 2
 		if num_merges > 1 { break }
 	}
@@ -599,7 +599,7 @@ fn middle_inside(a &Node, b &Node) bool {
 [inline]
 // split_polygon link two polygon vertices with a bridge; if the vertices belong to the same ring, it splits polygon into two;
 // if one belongs to the outer ring and another to a hole, it merges it into a single ring
-fn split_polygon(mut a Node, mut b Node) &Node {
+fn split_polygon(mut a &Node, mut b &Node) &Node {
 	mut a2 := &Node{
 		i: a.i
 		x: a.x
@@ -647,7 +647,7 @@ fn insert_node(i i64, x f32, y f32, mut last &Node) &Node {
 }
 
 [inline]
-fn remove_node(mut p Node) {
+fn remove_node(mut p &Node) {
 	p.next.prev = p.prev
 	p.prev.next = p.next
 	if !isnil(p.prev_z) { p.prev_z.next_z = p.next_z }
@@ -655,6 +655,7 @@ fn remove_node(mut p Node) {
 	//TODO unsafe { free(p) }
 }
 
+[heap]
 pub struct Node {
 mut:
 	// vertex index in coordinates array
