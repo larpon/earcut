@@ -13,7 +13,7 @@ pub fn earcut(data []f32, hole_indices []int, rdim int) []i64 {
 	outer_len := if has_holes { hole_indices[0] * dim } else { data.len }
 	mut outer_node := linked_list(data, 0, outer_len, dim, true)
 	mut triangles := []i64{}
-    if isnil(outer_node) || outer_node.next == outer_node.prev {
+    if isnil(outer_node) || equals(outer_node.next, outer_node.prev) {
 		return triangles
 	}
 	mut min_x := f32(0)
@@ -94,12 +94,12 @@ fn filter_points(mut start_ &Node, mut end_ &Node) &Node {
 			remove_node(mut p)
 			p = p.prev
 			end = p.prev
-			if p == p.next { break }
+			if equals(p, p.next) { break }
 			again = true
 		} else {
 			p = p.next
 		}
-		if !(again || p != end) { break } //  while (again || p !== end);??
+		if !(again || !equals(p,end)) { break } //  while (again || p !== end);??
 	}
 
     return end
@@ -124,7 +124,7 @@ fn earcut_linked(mut ear_ &Node, mut triangles []i64, dim int, min_x f32, min_y 
 	mut next := &Node(0)
 	mut nil := &Node(0)
 	// iterate through ears, slicing them one by one
-	for ear.prev != ear.next {
+	for !equals(ear.prev, ear.next) {
 		prev = ear.prev
 		next = ear.next
 		cutoff := if inv_size > 0 { is_ear_hashed(ear, min_x, min_y, inv_size) } else { is_ear(ear) }
@@ -141,7 +141,7 @@ fn earcut_linked(mut ear_ &Node, mut triangles []i64, dim int, min_x f32, min_y 
 		}
 		ear = next
 		// if we looped through the whole remaining polygon and can't find any more ears
-		if ear == stop {
+		if equals(ear, stop) {
 			// try filtering points and slicing again
 			if pass == 0 {
 				mut res := filter_points(mut ear, mut nil)
@@ -169,7 +169,7 @@ fn is_ear(ear &Node) bool {
 	if area(a, b, c) >= 0 { return false } // reflex, can't be an ear
 	// now make sure we don't have other points inside the potential ear
 	mut p := ear.next.next
-	for p != ear.prev {
+	for !equals(p,ear.prev) {
 		if point_in_triangle(a.x, a.y, b.x, b.y, c.x, c.y, p.x, p.y) && area(p.prev, p, p.next) >= 0 {
 			return false
 		}
@@ -196,25 +196,25 @@ fn is_ear_hashed(ear &Node, min_x f32, min_y f32, inv_size f32) bool {
 	mut n := ear.next_z
 	// look for points inside the triangle in both directions
 	for !isnil(p) && p.z >= min_z && !isnil(n) && n.z <= max_z {
-		if p != ear.prev && p != ear.next &&
+		if !equals(p,ear.prev) && !equals(p, ear.next) &&
 			point_in_triangle(a.x, a.y, b.x, b.y, c.x, c.y, p.x, p.y) &&
 			area(p.prev, p, p.next) >= 0 { return false }
 		p = p.prev_z
-		if n != ear.prev && n != ear.next &&
+		if !equals(n, ear.prev) && !equals(n, ear.next) &&
 			point_in_triangle(a.x, a.y, b.x, b.y, c.x, c.y, n.x, n.y) &&
 			area(n.prev, n, n.next) >= 0 { return false }
 		n = n.next_z
 	}
 	// look for remaining points in decreasing z-order
 	for !isnil(p) && p.z >= min_z {
-		if p != ear.prev && p != ear.next &&
+		if !equals(p, ear.prev) && !equals(p, ear.next) &&
 			point_in_triangle(a.x, a.y, b.x, b.y, c.x, c.y, p.x, p.y) &&
 			area(p.prev, p, p.next) >= 0 { return false }
 		p = p.prev_z
 	}
 	// look for remaining points in increasing z-order
 	for !isnil(n) && n.z <= max_z {
-		if n != ear.prev && n != ear.next &&
+		if !equals(n, ear.prev) && !equals(n, ear.next) &&
 			point_in_triangle(a.x, a.y, b.x, b.y, c.x, c.y, n.x, n.y) &&
 			area(n.prev, n, n.next) >= 0 { return false }
 		n = n.next_z
@@ -252,7 +252,7 @@ fn cure_local_intersections(mut start_ &Node, mut triangles []i64, dim int) &Nod
 			start = b
 		}
 		p = p.next
-		if p == start { break }
+		if equals(p,start) { break }
 	}
 	return filter_points(mut p, mut nil)
 }
@@ -264,7 +264,7 @@ fn split_earcut(start &Node, mut triangles []i64, dim int, min_x f32, min_y f32,
 	mut a := start
 	for {
 		mut b := a.next.next
-		for b != a.prev {
+		for !equals(b, a.prev) {
 			if a.i != b.i && is_valid_diagonal(a, b) {
 				// split the polygon in two by the diagonal
 				mut c := split_polygon(mut a, mut b)
@@ -279,12 +279,12 @@ fn split_earcut(start &Node, mut triangles []i64, dim int, min_x f32, min_y f32,
 			b = b.next
 		}
 		a = a.next
-		if a == start { break }
+		if equals(a,start) { break }
 	}
 }
 
 // TODO
-fn sort_queue_by_x(a &Node, b &Node) int {
+fn sort_queue_by_x(a &&Node, b &&Node) int {
 	return int(a.x - b.x)
 }
 
@@ -305,7 +305,7 @@ fn eliminate_holes(data []f32, hole_indices []int, mut outer_node_ &Node, dim in
 		start = hole_indices[i] * dim
 		end = if i < len - 1 { hole_indices[i + 1] * dim } else { data.len }
 		list = linked_list(data, start, end, dim, false)
-		if list == list.next {
+		if equals(list, list.next) {
 			list.steiner = true
 		}
 		queue << get_leftmost(list)
@@ -349,7 +349,7 @@ fn eliminate_hole(mut hole_ &Node, mut outer_node_ &Node) &Node {
 	filter_points(mut bridge_reverse, mut bridge_reverse.next)
 
 	// Check if input node was removed by the filtering
-	if outer_node == bridge {
+	if equals(outer_node, bridge) {
 		return filtered_bridge
 	}
 	return outer_node
@@ -379,7 +379,7 @@ fn find_hole_bridge(hole &Node, outer_node &Node) &Node {
 			}
 		}
 		p = p.next
-		if p == outer_node { break } //while (p !== outerNode);
+		if equals(p, outer_node) { break } //while (p !== outerNode);
 	}
 	if isnil(m) { return m }
 	if hx == qx { return m } // hole touches outer segment; pick leftmost endpoint
@@ -398,7 +398,7 @@ fn find_hole_bridge(hole &Node, outer_node &Node) &Node {
 			hy, mx, my,
 			if hy < my { f32(qx) } else { f32(hx) },
 			hy, p.x, p.y) {
-			tan = f32(math.fabs(hy - p.y) / (hx - p.x)) // tangential
+			tan = f32(math.abs(hy - p.y) / (hx - p.x)) // tangential
 			if locally_inside(p, hole) &&
 				(tan < tan_min || (tan == tan_min && (p.x > m.x || (p.x == m.x && sector_contains_sector(m, p))))) {
 				m = p
@@ -406,7 +406,7 @@ fn find_hole_bridge(hole &Node, outer_node &Node) &Node {
 			}
 		}
 		p = p.next
-		if p == stop { break } // while (p !== stop);
+		if equals(p, stop) { break } // while (p !== stop);
 	}
 	return m
 }
@@ -428,7 +428,7 @@ fn index_curve(start &Node, min_x f32, min_y f32, inv_size f32) {
 		p.prev_z = p.prev
 		p.next_z = p.next
 		p = p.next
-		if p == start { break }
+		if equals(p, start) { break }
 	}
 	p.prev_z.next_z = &Node(0)
 	p.prev_z = &Node(0)
@@ -529,7 +529,7 @@ fn get_leftmost(start &Node) &Node {
 			leftmost = p
 		}
 		p = p.next
-		if p == start { break }
+		if equals(p, start) { break }
 	}
 	return leftmost
 }
@@ -621,7 +621,7 @@ fn intersects_polygon(a &Node, b &Node) bool {
 			return true
 		}
 		p = p.next
-		if p == a { break }
+		if equals(p, a) { break }
 	}
 	return false
 }
@@ -650,7 +650,7 @@ fn middle_inside(a &Node, b &Node) bool {
             inside = !inside
 		}
 		p = p.next
-		if p == a { break }
+		if equals(p, a) { break }
 	}
     return inside
 }
@@ -754,7 +754,7 @@ fn (n &Node) str() string {
 pub fn deviation(data []f32, hole_indices []int, dim int, triangles []i64) f32 {
 	has_holes := hole_indices.len > 0
 	outer_len := if has_holes { hole_indices[0] * dim } else { data.len }
-	mut polygon_area := f32(math.fabs(signed_area(data, 0, outer_len, dim)))
+	mut polygon_area := f32(math.abs(signed_area(data, 0, outer_len, dim)))
 	if has_holes {
 		mut i := 0
 		len := hole_indices.len
@@ -763,7 +763,7 @@ pub fn deviation(data []f32, hole_indices []int, dim int, triangles []i64) f32 {
 		for ; i < len; i++ {
 			start = hole_indices[i] * dim
 			end = if i < len - 1 { hole_indices[i + 1] * dim } else { data.len }
-			polygon_area -= f32(math.fabs(signed_area(data, start, end, dim)))
+			polygon_area -= f32(math.abs(signed_area(data, start, end, dim)))
 		}
 	}
 	mut triangles_area := f32(0)
@@ -778,7 +778,7 @@ pub fn deviation(data []f32, hole_indices []int, dim int, triangles []i64) f32 {
 	if polygon_area == 0 && triangles_area == 0 {
 		return 0
 	} else {
-		return f32(math.fabs((triangles_area - polygon_area) / polygon_area))
+		return f32(math.abs((triangles_area - polygon_area) / polygon_area))
 	}
 }
 
