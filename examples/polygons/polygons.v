@@ -1,3 +1,6 @@
+// Copyright(C) 2020-2022 Lars Pontoppidan. All rights reserved.
+// Use of this source code is governed by MIT and ISC licenses (mapbox).
+// Both files are distributed with this software package.
 module main
 
 import gg
@@ -328,12 +331,14 @@ const (
 			[f32(4), 9],
 		],
 	]
-	v_logo_light = [[
-		[f32(1), 1],
-		[f32(3.5), 1.4],
-		[f32(6), 9],
-		[f32(4), 9],
-	]]
+	v_logo_light = [
+		[
+			[f32(1), 1],
+			[f32(3.5), 1.4],
+			[f32(6), 9],
+			[f32(4), 9],
+		],
+	]
 
 	rect         = [
 		[

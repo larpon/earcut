@@ -1,5 +1,7 @@
-// Copyright(C) 2020 Lars Pontoppidan. All rights reserved.
-// Use of this source code is governed by an ISC license file distributed with this software package
+// Copyright(C) 2020-2022 Lars Pontoppidan. All rights reserved.
+// Use of this source code is governed by MIT and ISC licenses (mapbox).
+// Both files are distributed with this software package.
+//
 // The following code is a near 1:1 hand-ported V version of https://github.com/mapbox/earcut
 // The module can be converted to use f64 precision by a simple /f32/f64/g
 module earcut
