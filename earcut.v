@@ -829,15 +829,15 @@ mut:
 
 fn (n &Node) str() string {
 	return '&Node@${ptr_str(n)} {
-        i: $n.i,
-        x: $n.x,
-        y: $n.y,
-        z: $n.z,
+        i: ${n.i},
+        x: ${n.x},
+        y: ${n.y},
+        z: ${n.z},
         prev: *${ptr_str(n.prev)},
         next: *${ptr_str(n.next)},
         prev_z: *${ptr_str(n.prev_z)},
         next_z: *${ptr_str(n.prev_z)}
-        steiner: $n.steiner
+        steiner: ${n.steiner}
 }'
 }
 

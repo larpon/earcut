@@ -120,7 +120,7 @@ pub fn tri_process(contour []f32) []int {
 		count--
 		if 0 >= count {
 			// Triangulate: ERROR - probable bad polygon!
-			panic('bad polygon $count')
+			panic('bad polygon ${count}')
 		}
 
 		// three consecutive vertices in current polygon, <u,v,w>
