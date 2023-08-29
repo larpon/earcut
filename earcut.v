@@ -62,7 +62,7 @@ pub fn earcut(data []f32, hole_indices []int, rdim int) []i64 {
 [direct_array_access; inline]
 fn linked_list(data []f32, start int, end int, dim int, clockwise bool) &Node {
 	mut i := 0
-	mut last := &Node(0)
+	mut last := &Node(unsafe { nil })
 
 	if clockwise == (signed_area(data, start, end, dim) > 0) {
 		for i = start; i < end; i += dim {
@@ -85,11 +85,11 @@ fn linked_list(data []f32, start int, end int, dim int, clockwise bool) &Node {
 [inline]
 fn filter_points(mut start_ Node, mut end_ Node) &Node {
 	// TODO BUG WORKAROUND
-	mut start := &Node(0)
+	mut start := &Node(unsafe { nil })
 	start = start_
 
 	// TODO BUG WORKAROUND
-	mut end := &Node(0)
+	mut end := &Node(unsafe { nil })
 	end = end_
 
 	if isnil(start) {
@@ -127,7 +127,7 @@ fn filter_points(mut start_ Node, mut end_ Node) &Node {
 [direct_array_access; inline]
 fn earcut_linked(mut ear_ Node, mut triangles []i64, dim int, min_x f32, min_y f32, inv_size f32, pass int) {
 	// TODO BUG WORKAROUND
-	mut ear := &Node(0)
+	mut ear := &Node(unsafe { nil })
 	ear = ear_
 
 	if isnil(ear) {
@@ -139,9 +139,9 @@ fn earcut_linked(mut ear_ Node, mut triangles []i64, dim int, min_x f32, min_y f
 	}
 
 	mut stop := ear
-	mut prev := &Node(0)
-	mut next := &Node(0)
-	mut null := &Node(0)
+	mut prev := &Node(unsafe { nil })
+	mut next := &Node(unsafe { nil })
+	mut null := &Node(unsafe { nil })
 	// iterate through ears, slicing them one by one
 	for !equals(ear.prev, ear.next) {
 		prev = ear.prev
@@ -275,11 +275,11 @@ fn is_ear_hashed(ear &Node, min_x f32, min_y f32, inv_size f32) bool {
 [direct_array_access; inline]
 fn cure_local_intersections(mut start_ Node, mut triangles []i64, dim int) &Node {
 	// TODO BUG WORKAROUND
-	mut start := &Node(0)
+	mut start := &Node(unsafe { nil })
 	start = start_
 
 	mut p := start
-	mut null := &Node(0)
+	mut null := &Node(unsafe { nil })
 	for {
 		a := p.prev
 
@@ -344,14 +344,14 @@ fn sort_queue_by_x(a &&Node, b &&Node) int {
 [direct_array_access; inline]
 fn eliminate_holes(data []f32, hole_indices []int, mut outer_node_ Node, dim int) &Node {
 	// TODO BUG WORKAROUND
-	mut outer_node := &Node(0)
+	mut outer_node := &Node(unsafe { nil })
 	outer_node = outer_node_
 
 	mut queue := []&Node{}
 	len := hole_indices.len
 	mut start := 0
 	mut end := 0
-	mut list := &Node(0)
+	mut list := &Node(unsafe { nil })
 	for i := 0; i < len; i++ {
 		start = hole_indices[i] * dim
 		end = if i < len - 1 { hole_indices[i + 1] * dim } else { data.len }
@@ -367,7 +367,7 @@ fn eliminate_holes(data []f32, hole_indices []int, mut outer_node_ Node, dim int
 	queue.sort_with_compare(sort_queue_by_x)
 
 	// process holes from left to right
-	list = &Node(0)
+	list = &Node(unsafe { nil })
 	for i := 0; i < queue.len; i++ {
 		list = queue[i]
 		outer_node = eliminate_hole(mut list, mut outer_node)
@@ -380,11 +380,11 @@ fn eliminate_holes(data []f32, hole_indices []int, mut outer_node_ Node, dim int
 [inline]
 fn eliminate_hole(mut hole_ Node, mut outer_node_ Node) &Node {
 	// TODO BUG WORKAROUND
-	mut outer_node := &Node(0)
+	mut outer_node := &Node(unsafe { nil })
 	outer_node = outer_node_
 
 	// TODO BUG WORKAROUND
-	mut hole := &Node(0)
+	mut hole := &Node(unsafe { nil })
 	hole = hole_
 
 	mut bridge := find_hole_bridge(hole, outer_node)
@@ -412,7 +412,7 @@ fn find_hole_bridge(hole &Node, outer_node &Node) &Node {
 	hx := hole.x
 	hy := hole.y
 	mut qx := -math.max_f32
-	mut m := &Node(0)
+	mut m := &Node(unsafe { nil })
 	// find a segment intersected by a ray from the hole's leftmost point to the left;
 	// segment's endpoint with lesser x will be potential connection point
 	mut x := f32(0)
@@ -494,8 +494,8 @@ fn index_curve(start &Node, min_x f32, min_y f32, inv_size f32) {
 			break
 		}
 	}
-	p.prev_z.next_z = &Node(0)
-	p.prev_z = &Node(0)
+	p.prev_z.next_z = &Node(unsafe { nil })
+	p.prev_z = &Node(unsafe { nil })
 	sort_linked(mut p)
 }
 
@@ -504,22 +504,22 @@ fn index_curve(start &Node, min_x f32, min_y f32, inv_size f32) {
 [inline]
 fn sort_linked(mut list_ Node) &Node {
 	// TODO BUG WORKAROUND
-	mut list := &Node(0)
+	mut list := &Node(unsafe { nil })
 	list = list_
 
 	mut i := 0
-	mut p := &Node(0)
-	mut q := &Node(0)
-	mut e := &Node(0)
-	mut tail := &Node(0)
+	mut p := &Node(unsafe { nil })
+	mut q := &Node(unsafe { nil })
+	mut e := &Node(unsafe { nil })
+	mut tail := &Node(unsafe { nil })
 	mut num_merges := 0
 	mut p_size := 0
 	mut q_size := 0
 	mut in_size := 1
 	for {
 		p = list
-		list = &Node(0)
-		tail = &Node(0)
+		list = &Node(unsafe { nil })
+		tail = &Node(unsafe { nil })
 		num_merges = 0
 		for !isnil(p) {
 			num_merges++
@@ -553,7 +553,7 @@ fn sort_linked(mut list_ Node) &Node {
 			}
 			p = q
 		}
-		tail.next_z = &Node(0)
+		tail.next_z = &Node(unsafe { nil })
 		in_size *= 2
 		if num_merges > 1 {
 			break
@@ -697,7 +697,7 @@ fn sign(num f32) int {
 // intersects_polygon check if a polygon diagonal intersects any polygon segments
 [inline]
 fn intersects_polygon(a &Node, b &Node) bool {
-	// mut p := &Node(0)
+	// mut p := &Node(unsafe{nil})
 	mut p := unsafe { a }
 	for {
 		if p.i != a.i && p.next.i != a.i && p.i != b.i && p.next.i != b.i
@@ -726,14 +726,14 @@ fn locally_inside(a &Node, b &Node) bool {
 [inline]
 fn middle_inside(a &Node, b &Node) bool {
 	mut p := unsafe { a }
-	// mut p := &Node(0)
+	// mut p := &Node(unsafe{nil})
 	mut inside := false
 	px := (a.x + b.x) / 2
 	py := (a.y + b.y) / 2
 
 	for {
-		if ((p.y > py) != (p.next.y > py)) && p.next.y != p.y
-			&& (px < (p.next.x - p.x) * (py - p.y) / (p.next.y - p.y) + p.x) {
+		if (p.y > py) != (p.next.y > py) && p.next.y != p.y
+			&& px < (p.next.x - p.x) * (py - p.y) / (p.next.y - p.y) + p.x {
 			inside = !inside
 		}
 		p = p.next

@@ -24,7 +24,7 @@ mut:
 	rect         Polygon
 }
 
-fn (mut app App) on_key_down(key sapp.KeyCode) {
+fn (mut app App) on_key_down(key gg.KeyCode) {
 	match key {
 		.w, .up {
 			app.pos.y -= move_by_pix
@@ -111,8 +111,8 @@ fn multiply(mut vertices []f32, x f32, y f32) {
 	}
 }
 
-fn event(e &sapp.Event, mut app App) {
-	match e.@type {
+fn event(e &gg.Event, mut app App) {
+	match e.typ {
 		.key_down {
 			app.on_key_down(e.key_code)
 		}

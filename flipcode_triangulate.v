@@ -32,9 +32,9 @@ pub fn tri_area(contour []f32) f32 {
 // tri_inside_triangle decides if a point P is inside of the triangle defined by A, B, C.
 [inline]
 pub fn tri_inside_triangle(a_x f32, a_y f32, b_x f32, b_y f32, c_x f32, c_y f32, p_x f32, p_y f32) bool {
-	return (((c_x - b_x) * (p_y - b_y) - (c_y - b_y) * (p_x - b_x)) >= f32(0))
-		&& (((a_x - c_x) * (p_y - c_y) - (a_y - c_y) * (p_x - c_x)) >= f32(0))
-		&& (((b_x - a_x) * (p_y - a_y) - (b_y - a_y) * (p_x - a_x)) >= f32(0))
+	return ((c_x - b_x) * (p_y - b_y) - (c_y - b_y) * (p_x - b_x)) >= f32(0)
+		&& ((a_x - c_x) * (p_y - c_y) - (a_y - c_y) * (p_x - c_x)) >= f32(0)
+		&& ((b_x - a_x) * (p_y - a_y) - (b_y - a_y) * (p_x - a_x)) >= f32(0)
 	/*
 	ax := c_x - b_x
 	ay := c_y - b_y
@@ -75,7 +75,7 @@ pub fn tri_snip(contour []f32, u int, v int, w int, n int, vi []int) bool {
 	mut p_x := f32(0)
 	mut p_y := f32(0)
 	for p := 0; p < n; p++ {
-		if (p == u) || (p == v) || (p == w) {
+		if p == u || p == v || p == w {
 			continue
 		}
 		p_x = contour[vi[p]]
