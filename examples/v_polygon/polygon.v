@@ -4,13 +4,10 @@
 module main
 
 import gg
-import gx
 import earcut
 
-const (
-	win_width  = 550
-	win_height = 450
-)
+const win_width = 550
+const win_height = 450
 
 struct App {
 mut:
@@ -27,18 +24,17 @@ mut:
 
 fn main() {
 	mut app := &App{
-		gg: 0
+		gg: unsafe { nil }
 	}
 	app.gg = gg.new_context(
-		bg_color: gx.black
-		width: win_width
-		height: win_height
-		use_ortho: true // This is needed for 2D drawing
+		bg_color:      gg.black
+		width:         win_width
+		height:        win_height
 		create_window: true
-		window_title: 'Polygon'
-		frame_fn: frame
-		user_data: app
-		init_fn: init
+		window_title:  'Polygon'
+		frame_fn:      frame
+		user_data:     app
+		init_fn:       init
 	)
 	app.gg.run()
 }
@@ -77,7 +73,7 @@ fn frame(app &App) {
 	app.gg.end()
 }
 
-[direct_array_access; inline]
+@[direct_array_access; inline]
 fn (app &App) draw() {
 	dim := 2
 	mut pts := unsafe { app.v_logo.points }
@@ -96,7 +92,7 @@ fn (app &App) draw() {
 		p3y := f32(pts[int(indicies[i + 2] * dim + 1)])
 
 		app.gg.draw_triangle_filled(f32(p1x), f32(p1y), f32(p2x), f32(p2y), f32(p3x),
-			f32(p3y), gx.rgb(64, 95, 134))
+			f32(p3y), gg.rgb(64, 95, 134))
 	}
 
 	pts = unsafe { app.v_logo_light.points }
@@ -113,28 +109,26 @@ fn (app &App) draw() {
 		p3y := f32(pts[int(indicies[i + 2] * dim + 1)])
 
 		app.gg.draw_triangle_filled(f32(p1x), f32(p1y), f32(p2x), f32(p2y), f32(p3x),
-			f32(p3y), gx.rgb(93, 136, 193))
+			f32(p3y), gg.rgb(93, 136, 193))
 	}
 }
 
-const (
-	v_logo       = [
-		[
-			[f32(1), 1],
-			[f32(3.5), 1.4],
-			[f32(5), 6],
-			[f32(6.5), 1.4],
-			[f32(9), 1],
-			[f32(6), 9],
-			[f32(4), 9],
-		],
-	]
-	v_logo_light = [
-		[
-			[f32(1), 1],
-			[f32(3.5), 1.4],
-			[f32(6), 9],
-			[f32(4), 9],
-		],
-	]
-)
+const v_logo = [
+	[
+		[f32(1), 1],
+		[f32(3.5), 1.4],
+		[f32(5), 6],
+		[f32(6.5), 1.4],
+		[f32(9), 1],
+		[f32(6), 9],
+		[f32(4), 9],
+	],
+]
+const v_logo_light = [
+	[
+		[f32(1), 1],
+		[f32(3.5), 1.4],
+		[f32(6), 9],
+		[f32(4), 9],
+	],
+]

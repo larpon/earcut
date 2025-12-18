@@ -10,7 +10,7 @@ module earcut
 
 const epsilon = 0.0000000001
 
-[direct_array_access; inline]
+@[direct_array_access; inline]
 pub fn tri_area(contour []f32) f32 {
 	n := contour.len
 	mut a := f32(0.0)
@@ -30,7 +30,7 @@ pub fn tri_area(contour []f32) f32 {
 }
 
 // tri_inside_triangle decides if a point P is inside of the triangle defined by A, B, C.
-[inline]
+@[inline]
 pub fn tri_inside_triangle(a_x f32, a_y f32, b_x f32, b_y f32, c_x f32, c_y f32, p_x f32, p_y f32) bool {
 	return ((c_x - b_x) * (p_y - b_y) - (c_y - b_y) * (p_x - b_x)) >= f32(0)
 		&& ((a_x - c_x) * (p_y - c_y) - (a_y - c_y) * (p_x - c_x)) >= f32(0)
@@ -57,7 +57,7 @@ pub fn tri_inside_triangle(a_x f32, a_y f32, b_x f32, b_y f32, c_x f32, c_y f32,
 	*/
 }
 
-[direct_array_access; inline]
+@[direct_array_access; inline]
 pub fn tri_snip(contour []f32, u int, v int, w int, n int, vi []int) bool {
 	a_x := contour[vi[u]]
 	a_y := contour[vi[u] + 1]
@@ -68,7 +68,7 @@ pub fn tri_snip(contour []f32, u int, v int, w int, n int, vi []int) bool {
 	c_x := contour[vi[w]]
 	c_y := contour[vi[w] + 1]
 
-	if earcut.epsilon > (((b_x - a_x) * (c_y - a_y)) - ((b_y - a_y) * (c_x - a_x))) {
+	if epsilon > (((b_x - a_x) * (c_y - a_y)) - ((b_y - a_y) * (c_x - a_x))) {
 		return false
 	}
 

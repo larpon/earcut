@@ -8,7 +8,7 @@ module earcut
 
 import math
 
-[direct_array_access; inline]
+@[direct_array_access; inline]
 pub fn earcut(data []f32, hole_indices []int, rdim int) []i64 {
 	dim := if rdim > 0 { rdim } else { 2 }
 	has_holes := hole_indices.len > 0
@@ -59,7 +59,7 @@ pub fn earcut(data []f32, hole_indices []int, rdim int) []i64 {
 }
 
 // linked_list create a circular doubly linked list from polygon points in the specified winding order
-[direct_array_access; inline]
+@[direct_array_access; inline]
 fn linked_list(data []f32, start int, end int, dim int, clockwise bool) &Node {
 	mut i := 0
 	mut last := &Node(unsafe { nil })
@@ -82,7 +82,7 @@ fn linked_list(data []f32, start int, end int, dim int, clockwise bool) &Node {
 }
 
 // filter_points eliminate colinear or duplicate points
-[inline]
+@[inline]
 fn filter_points(mut start_ Node, mut end_ Node) &Node {
 	// TODO BUG WORKAROUND
 	mut start := &Node(unsafe { nil })
@@ -124,7 +124,7 @@ fn filter_points(mut start_ Node, mut end_ Node) &Node {
 }
 
 // earcut_linked main ear slicing loop which triangulates a polygon (given as a linked list)
-[direct_array_access; inline]
+@[direct_array_access; inline]
 fn earcut_linked(mut ear_ Node, mut triangles []i64, dim int, min_x f32, min_y f32, inv_size f32, pass int) {
 	// TODO BUG WORKAROUND
 	mut ear := &Node(unsafe { nil })
@@ -180,7 +180,7 @@ fn earcut_linked(mut ear_ Node, mut triangles []i64, dim int, min_x f32, min_y f
 }
 
 // is_ear check whether a polygon node forms a valid ear with adjacent nodes
-[inline]
+@[inline]
 fn is_ear(ear &Node) bool {
 	a := ear.prev
 	b := ear
@@ -200,7 +200,7 @@ fn is_ear(ear &Node) bool {
 	return true
 }
 
-[inline]
+@[inline]
 fn is_ear_hashed(ear &Node, min_x f32, min_y f32, inv_size f32) bool {
 	a := ear.prev
 	b := ear
@@ -272,7 +272,7 @@ fn is_ear_hashed(ear &Node, min_x f32, min_y f32, inv_size f32) bool {
 }
 
 // cure_local_intersections go through all polygon nodes and cure small local self-intersections
-[direct_array_access; inline]
+@[direct_array_access; inline]
 fn cure_local_intersections(mut start_ Node, mut triangles []i64, dim int) &Node {
 	// TODO BUG WORKAROUND
 	mut start := &Node(unsafe { nil })
@@ -286,7 +286,7 @@ fn cure_local_intersections(mut start_ Node, mut triangles []i64, dim int) &Node
 		// TODO BUG WORKAROUND
 		// b := p.next.next
 		mut p_next := p.next
-		b := p_next
+		mut b := p_next
 
 		if !equals(a, b) && intersects(a, p, p.next, b) && locally_inside(a, b)
 			&& locally_inside(b, a) {
@@ -308,7 +308,7 @@ fn cure_local_intersections(mut start_ Node, mut triangles []i64, dim int) &Node
 }
 
 // split_earcut try splitting polygon into two and triangulate them independently
-[direct_array_access; inline]
+@[direct_array_access; inline]
 fn split_earcut(start &Node, mut triangles []i64, dim int, min_x f32, min_y f32, inv_size f32) {
 	// look for a valid diagonal that divides the polygon into two
 	mut a := unsafe { start }
@@ -341,7 +341,7 @@ fn sort_queue_by_x(a &&Node, b &&Node) int {
 }
 
 // eliminate_holes link every hole into the outer loop, producing a single-ring polygon without holes
-[direct_array_access; inline]
+@[direct_array_access; inline]
 fn eliminate_holes(data []f32, hole_indices []int, mut outer_node_ Node, dim int) &Node {
 	// TODO BUG WORKAROUND
 	mut outer_node := &Node(unsafe { nil })
@@ -377,7 +377,7 @@ fn eliminate_holes(data []f32, hole_indices []int, mut outer_node_ Node, dim int
 }
 
 // eliminate_hole find a bridge between vertices that connects hole with an outer ring and and link it
-[inline]
+@[inline]
 fn eliminate_hole(mut hole_ Node, mut outer_node_ Node) &Node {
 	// TODO BUG WORKAROUND
 	mut outer_node := &Node(unsafe { nil })
@@ -406,7 +406,7 @@ fn eliminate_hole(mut hole_ Node, mut outer_node_ Node) &Node {
 }
 
 // find_hole_bridge David Eberly's algorithm for finding a bridge between hole and outer polygon
-[inline]
+@[inline]
 fn find_hole_bridge(hole &Node, outer_node &Node) &Node {
 	mut p := unsafe { outer_node }
 	hx := hole.x
@@ -474,13 +474,13 @@ fn find_hole_bridge(hole &Node, outer_node &Node) &Node {
 }
 
 // sector_contains_sector whether sector in vertex m contains sector in vertex p in the same coordinates
-[inline]
+@[inline]
 fn sector_contains_sector(m &Node, p &Node) bool {
 	return area(m.prev, m, p.prev) < 0 && area(p.next, m, m.next) < 0
 }
 
 // index_curve interlink polygon nodes in z-order
-[inline]
+@[inline]
 fn index_curve(start &Node, min_x f32, min_y f32, inv_size f32) {
 	mut p := unsafe { start }
 	for {
@@ -501,7 +501,7 @@ fn index_curve(start &Node, min_x f32, min_y f32, inv_size f32) {
 
 // sort_linked Simon Tatham's linked list merge sort algorithm
 // http://www.chiark.greenend.org.uk/~sgtatham/algorithms/listsort.html
-[inline]
+@[inline]
 fn sort_linked(mut list_ Node) &Node {
 	// TODO BUG WORKAROUND
 	mut list := &Node(unsafe { nil })
@@ -563,7 +563,7 @@ fn sort_linked(mut list_ Node) &Node {
 }
 
 // z_order z-order of a point given coords and inverse of the longer side of data bbox
-[inline]
+@[inline]
 fn z_order(x f32, y f32, min_x f32, min_y f32, inv_size f32) u16 {
 	// coords are transformed into non-negative 15-bit integer range
 	mut nx := 32767 * u16(x - min_x) * u16(inv_size)
@@ -583,7 +583,7 @@ fn z_order(x f32, y f32, min_x f32, min_y f32, inv_size f32) u16 {
 }
 
 // get_leftmost find the leftmost node of a polygon ring
-[inline]
+@[inline]
 fn get_leftmost(start &Node) &Node {
 	mut p := unsafe { start }
 	mut leftmost := unsafe { start }
@@ -600,7 +600,7 @@ fn get_leftmost(start &Node) &Node {
 }
 
 // point_in_triangle check if a point lies within a convex triangle
-[inline]
+@[inline]
 fn point_in_triangle(ax f32, ay f32, bx f32, by f32, cx f32, cy f32, px f32, py f32) bool {
 	return (cx - px) * (ay - py) - (ax - px) * (cy - py) >= 0
 		&& (ax - px) * (by - py) - (bx - px) * (ay - py) >= 0
@@ -608,7 +608,7 @@ fn point_in_triangle(ax f32, ay f32, bx f32, by f32, cx f32, cy f32, px f32, py 
 }
 
 // is_valid_diagonal check if a diagonal between two polygon nodes is valid (lies in polygon interior)
-[inline]
+@[inline]
 fn is_valid_diagonal(a &Node, b &Node) bool {
 	doesnt_intersect := a.next.i != b.i && a.prev.i != b.i
 		&& !intersects_polygon(a, b) // dones't intersect other edges
@@ -620,19 +620,19 @@ fn is_valid_diagonal(a &Node, b &Node) bool {
 }
 
 // area signed area of a triangle
-[inline]
+@[inline]
 fn area(p &Node, q &Node, r &Node) f32 {
 	return (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y)
 }
 
 // equals check if two points are equal
-[inline]
+@[inline]
 fn equals(p1 &Node, p2 &Node) bool {
 	return p1.x == p2.x && p1.y == p2.y
 }
 
 // intersects check if two segments intersect
-[inline]
+@[inline]
 fn intersects(p1 &Node, q1 &Node, p2 &Node, q2 &Node) bool {
 	o1 := sign(area(p1, q1, p2))
 	o2 := sign(area(p1, q1, q2))
@@ -662,13 +662,13 @@ fn intersects(p1 &Node, q1 &Node, p2 &Node, q2 &Node) bool {
 }
 
 // on_segment for collinear points p, q, r, check if point q lies on segment pr
-[inline]
+@[inline]
 fn on_segment(p &Node, q &Node, r &Node) bool {
 	return q.x <= max_f32(p.x, r.x) && q.x >= min_f32(p.x, r.x) && q.y <= max_f32(p.y, r.y)
 		&& q.y >= min_f32(p.y, r.y)
 }
 
-[inline]
+@[inline]
 fn max_f32(a f32, b f32) f32 {
 	if a > b {
 		return a
@@ -676,7 +676,7 @@ fn max_f32(a f32, b f32) f32 {
 	return b
 }
 
-[inline]
+@[inline]
 fn min_f32(a f32, b f32) f32 {
 	if a < b {
 		return a
@@ -684,7 +684,7 @@ fn min_f32(a f32, b f32) f32 {
 	return b
 }
 
-[inline]
+@[inline]
 fn sign(num f32) int {
 	if num > 0 {
 		return 1
@@ -695,7 +695,7 @@ fn sign(num f32) int {
 }
 
 // intersects_polygon check if a polygon diagonal intersects any polygon segments
-[inline]
+@[inline]
 fn intersects_polygon(a &Node, b &Node) bool {
 	// mut p := &Node(unsafe{nil})
 	mut p := unsafe { a }
@@ -713,7 +713,7 @@ fn intersects_polygon(a &Node, b &Node) bool {
 }
 
 // locally_inside check if a polygon diagonal is locally inside the polygon
-[inline]
+@[inline]
 fn locally_inside(a &Node, b &Node) bool {
 	if area(a.prev, a, a.next) < 0 {
 		return area(a, b, a.next) >= 0 && area(a, a.prev, b) >= 0
@@ -723,7 +723,7 @@ fn locally_inside(a &Node, b &Node) bool {
 }
 
 // middle_inside check if the middle point of a polygon diagonal is inside the polygon
-[inline]
+@[inline]
 fn middle_inside(a &Node, b &Node) bool {
 	mut p := unsafe { a }
 	// mut p := &Node(unsafe{nil})
@@ -746,7 +746,7 @@ fn middle_inside(a &Node, b &Node) bool {
 
 // split_polygon link two polygon vertices with a bridge; if the vertices belong to the same ring, it splits polygon into two;
 // if one belongs to the outer ring and another to a hole, it merges it into a single ring
-[inline]
+@[inline]
 fn split_polygon(mut a Node, mut b Node) &Node {
 	mut a2 := &Node{
 		i: a.i
@@ -775,7 +775,7 @@ fn split_polygon(mut a Node, mut b Node) &Node {
 }
 
 // insert_node create a node and optionally link it with previous one (in a circular doubly linked list)
-[inline]
+@[inline]
 fn insert_node(i i64, x f32, y f32, mut last Node) &Node {
 	mut p := &Node{
 		i: i
@@ -794,7 +794,7 @@ fn insert_node(i i64, x f32, y f32, mut last Node) &Node {
 	return p
 }
 
-[inline]
+@[inline]
 fn remove_node(mut p Node) {
 	p.next.prev = p.prev
 	p.prev.next = p.next
@@ -807,7 +807,7 @@ fn remove_node(mut p Node) {
 	// TODO unsafe { free(p) }
 }
 
-[heap]
+@[heap]
 pub struct Node {
 mut:
 	// vertex index in coordinates array
@@ -843,7 +843,7 @@ fn (n &Node) str() string {
 
 // deviation return a percentage difference between the polygon area and its triangulation area;
 // used to verify correctness of triangulation
-[direct_array_access; inline]
+@[direct_array_access; inline]
 pub fn deviation(data []f32, hole_indices []int, dim int, triangles []i64) f32 {
 	has_holes := hole_indices.len > 0
 	outer_len := if has_holes { hole_indices[0] * dim } else { data.len }
@@ -874,7 +874,7 @@ pub fn deviation(data []f32, hole_indices []int, dim int, triangles []i64) f32 {
 	}
 }
 
-[direct_array_access; inline]
+@[direct_array_access; inline]
 fn signed_area(data []f32, start int, end int, dim int) f32 {
 	mut sum := f32(0)
 	mut j := end - dim
@@ -895,7 +895,7 @@ pub mut:
 }
 
 // flatten turn a polygon in a multi-dimensional array form (e.g. as in GeoJSON) into a form Earcut accepts
-[direct_array_access; inline]
+@[direct_array_access; inline]
 pub fn flatten(data [][][]f32) FlatResult {
 	dim := data[0][0].len
 	mut result := FlatResult{
